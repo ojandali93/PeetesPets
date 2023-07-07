@@ -59,7 +59,10 @@ module.exports = (app) => {
   app.get('/search', (req, res) => {
     term = new RegExp(req.query.term, 'i')
   >
-    Pet.find({'name': term}).exec((err, pets) => {
+    Pet.find({$or:[
+      {'name': term},
+      {'species': term}
+    ]}).exec((err, pets) => {
       res.render('pets-index', { pets: pets });
     })
   });
