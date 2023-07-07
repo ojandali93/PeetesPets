@@ -114,8 +114,8 @@ module.exports = (app) => {
     var stripe = require("stripe")(process.env.PRIVATE_STRIPE_API_KEY);
     const token = req.body.stripeToken; // Using Express
     let petId = req.body.petId || req.params.id;
-    Pet.findById(petId).exec((err, pet)=> {
-      if (err) {
+    Pet.findById(petId).exec((err, pet) => {
+      if(err) {
         console.log('Error: ' + err);
         res.redirect(`/pets/${req.params.id}`);
       }
@@ -125,13 +125,19 @@ module.exports = (app) => {
         description: `Purchased ${pet.name}, ${pet.species}`,
         source: token,
       }).then((chg) => {
-        res.redirect(`/pets/${req.params.id}`);
+      // Convert the amount back to dollars for ease in displaying in the template
+        const user = {
+          email: req.body.stripeEmail,
+          amount: chg.amount / 100,
+          petName: pet.name
+        };
+        // Call our mail handler to manage sending emails
+        mailer.sendMail(user, req, res);
       })
       .catch(err => {
-        console.log('Error:' + err);
+        console.log('Error: ' + err);
       });
     })
-
   });
 
 }

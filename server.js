@@ -39,9 +39,24 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-
 require('./routes/index.js')(app);
 require('./routes/pets.js')(app);
+
+nodemailerMailgun.sendMail({
+  from: 'no-reply@example.com',
+  to: user.email, // An array if you have multiple recipients.
+  subject: 'Hey you, awesome!',
+  template: {
+    name: 'email.handlebars',
+    engine: 'handlebars',
+    context: user
+  }
+}).then(info => {
+  console.log('Response: ' + info);
+}).catch(err => {
+  console.log('Error: ' + err);
+});
+
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
